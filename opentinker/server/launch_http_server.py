@@ -138,8 +138,12 @@ def main(cfg):
         logger.info("Agent Loop Mode Enabled")
         logger.info("=" * 60)
 
+        # Enable vLLM V1 for async rollout (required for agent_loop)
         os.environ["VLLM_USE_V1"] = "1"
+        # Use CUDA allocator instead of cumem to avoid "invalid argument" errors on multi-GPU
+        os.environ["VLLM_DEVICE_MEM_ALLOCATOR"] = "cuda"
         logger.info("Set VLLM_USE_V1=1 for async rollout")
+        logger.info("Set VLLM_DEVICE_MEM_ALLOCATOR=cuda (avoiding cumem allocator issues)")
 
         # Increase Ray's memory threshold to avoid premature OOM kills
         # Default is 0.95 (95%), we increase to 0.98 (98%)

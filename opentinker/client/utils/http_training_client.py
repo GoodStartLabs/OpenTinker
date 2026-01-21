@@ -611,7 +611,7 @@ class ServiceClient:
                         "path": args.tokenizer_path,
                     },
                     "rollout": {
-                        "tensor_model_parallel_size": 2 if args.num_gpus > 1 else 1,
+                        "tensor_model_parallel_size": 1,  # Set to 1 to avoid vLLM V1 GPU allocation issues
                     },
                 },
                 "critic": {

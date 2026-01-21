@@ -29,13 +29,13 @@ response_length: ${oc.select:data.max_response_length,512}
 dtype: bfloat16
 
 # Fraction of GPU memory used by vLLM/SGLang for KV cache.
-gpu_memory_utilization: 0.5
+gpu_memory_utilization: 0.4
 
 # Whether to ignore EOS and continue generating after EOS is hit.
 ignore_eos: False
 
 # Whether to disable CUDA graph. Default False to best performance.
-enforce_eager: False
+enforce_eager: True
 
 # batch size of cudagraph to capture. Require enforce_eager: False to use this option
 # Since cudagraph in inference engine can not be offloaded during update policy,
@@ -47,7 +47,7 @@ cudagraph_capture_sizes: null
 free_cache_engine: True
 
 # TP size for rollout. Not effective for hf
-tensor_model_parallel_size: 2
+tensor_model_parallel_size: 1
 
 # DP size for rollout
 data_parallel_size: 1

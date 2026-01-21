@@ -1034,13 +1034,14 @@ class JobSchedulerActor:
         Returns:
             Popen process object
         """
+        import sys
         env = os.environ.copy()
         # Set CUDA_VISIBLE_DEVICES to comma-separated list of GPU IDs
         env["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, job.gpu_ids))
 
         # Build command line arguments from config
         cmd = [
-            "python",
+            sys.executable,
             self.server_script_path,
             f"server.port={job.port}",
             f"job_id={job.job_id}",
