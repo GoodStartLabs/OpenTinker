@@ -1,0 +1,70 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: opentinker-prod
+
+resources:
+  - ../../base
+  - namespace.yaml
+  - external-secret.yaml
+  - ingress-route.yaml
+
+images:
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-api
+    newTag: prod-v1.0.0
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker
+    newTag: prod-v1.0.0
+
+patches:
+  # Increase API replicas for production
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: api
+      spec:
+        replicas: 3
+    target:
+      kind: Deployment
+      name: api
+
+  # Update worker service account with Workload Identity
+  - patch: |-
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: worker
+        annotations:
+          iam.gke.io/gcp-service-account: opentinker-worker-prod@development-472321.iam.gserviceaccount.com
+    target:
+      kind: ServiceAccount
+      name: worker
+
+  # Update External Secrets service account
+  - patch: |-
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: external-secrets-sa
+        annotations:
+          iam.gke.io/gcp-service-account: external-secrets@development-472321.iam.gserviceaccount.com
+    target:
+      kind: ServiceAccount
+      name: external-secrets-sa
+
+  # Keep worker min replicas at 1 for production (workers are expensive with GPUs)
+  - patch: |-
+      apiVersion: keda.sh/v1alpha1
+      kind: ScaledObject
+      metadata:
+        name: opentinker-worker-scaler
+      spec:
+        minReplicaCount: 1
+        idleReplicaCount: 1
+    target:
+      kind: ScaledObject
+      name: opentinker-worker-scaler
+
+commonLabels:
+  environment: production
+  app.kubernetes.io/instance: opentinker-prod

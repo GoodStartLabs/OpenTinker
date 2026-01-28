@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: opentinker
+  labels:
+    app: opentinker-worker
+    component: training-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opentinker-worker
+  template:
+    metadata:
+      labels:
+        app: opentinker-worker
+        component: training-worker
+    spec:
+      serviceAccountName: worker
+      containers:
+      - name: worker
+        image: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker:latest
+        env:
+        - name: CELERY_BROKER_URL
+          value: "amqp://admin:admin@rabbitmq.opentinker.svc.cluster.local:5672//"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: VLLM_USE_V1
+          value: "1"
+        - name: VLLM_DEVICE_MEM_ALLOCATOR
+          value: "cuda"
+        - name: HF_HUB_ENABLE_HF_TRANSFER
+          value: "1"
+        resources:
+          requests:
+            memory: "32Gi"
+            cpu: "8000m"
+            nvidia.com/gpu: 4
+          limits:
+            memory: "64Gi"
+            cpu: "16000m"
+            nvidia.com/gpu: 4
+        volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
+        securityContext:
+          runAsUser: 0  # Root required for GPU access
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
+      # nodeSelector will be added by region-specific overlays
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      volumes:
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 16Gi

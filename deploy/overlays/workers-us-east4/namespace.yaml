@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opentinker-workers-us-east4
+  labels:
+    app.kubernetes.io/name: opentinker
+    app.kubernetes.io/component: workers
+    region: us-east4
+    environment: production

@@ -2154,6 +2154,7 @@ def create_app(
             "status": "running",
             "authentication": "enabled" if enable_auth else "disabled",
             "endpoints": [
+                "/health (GET)",
                 "/register (POST)",
                 "/submit_job (POST)",
                 "/submit_inference_job (POST)",
@@ -2163,6 +2164,35 @@ def create_app(
                 "/complete_job/{job_id} (POST)",
             ],
         }
+
+    @app.get("/health")
+    async def health():
+        """
+        Health check endpoint for external monitoring (Kubernetes, workers, etc.).
+
+        Returns scheduler health status. No authentication required for health checks.
+        """
+        try:
+            # Simple health check - just verify scheduler is responsive
+            jobs = ray.get(scheduler_actor.list_jobs.remote(user_id=None))
+            active_jobs = len([j for j in jobs if j.get("status") in ["QUEUED", "RUNNING"]])
+
+            return {
+                "status": "healthy",
+                "service": "OpenTinker Job Scheduler",
+                "version": "2.0.0",
+                "timestamp": datetime.now().isoformat(),
+                "active_jobs": active_jobs
+            }
+        except Exception as e:
+            logger.error(f"Health check error: {e}")
+            return {
+                "status": "unhealthy",
+                "service": "OpenTinker Job Scheduler",
+                "version": "2.0.0",
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e)
+            }
 
     @app.post("/register")
     async def register(username: str):

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opentinker-prod
+  labels:
+    app.kubernetes.io/name: opentinker
+    app.kubernetes.io/component: namespace
+    environment: production
