@@ -2043,18 +2043,44 @@ def launch_server(
             print(
                 f"No existing Ray cluster found, starting new one with {_server_cfg.trainer.n_gpus_per_node} GPUs..."
             )
+            # Pass critical environment variables to Ray workers via runtime_env
+            # NOTE: Do NOT set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True here
+            # as it conflicts with vLLM's CuMemAllocator (see PyTorch issue #147851)
+            runtime_env = {
+                "env_vars": {
+                    "TOKENIZERS_PARALLELISM": "true",
+                    "NCCL_DEBUG": "WARN",
+                    "VLLM_USE_V1": os.environ.get("VLLM_USE_V1", "1"),
+                    "VLLM_DEVICE_MEM_ALLOCATOR": os.environ.get("VLLM_DEVICE_MEM_ALLOCATOR", "cuda"),
+                }
+            }
+            print(f"Ray runtime_env: {runtime_env}")
             ray.init(
                 namespace=_server_cfg.ray.namespace,
                 num_gpus=_server_cfg.trainer.n_gpus_per_node,  # Explicitly specify number of GPUs
                 ignore_reinit_error=True,
+                runtime_env=runtime_env,
             )
         else:
             # Connect to existing Ray cluster at specific address
             print(f"Connecting to existing Ray cluster at {_server_cfg.ray.address}...")
+            # Pass critical environment variables to Ray workers via runtime_env
+            # NOTE: Do NOT set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True here
+            # as it conflicts with vLLM's CuMemAllocator (see PyTorch issue #147851)
+            runtime_env = {
+                "env_vars": {
+                    "TOKENIZERS_PARALLELISM": "true",
+                    "NCCL_DEBUG": "WARN",
+                    "VLLM_USE_V1": os.environ.get("VLLM_USE_V1", "1"),
+                    "VLLM_DEVICE_MEM_ALLOCATOR": os.environ.get("VLLM_DEVICE_MEM_ALLOCATOR", "cuda"),
+                }
+            }
+            print(f"Ray runtime_env: {runtime_env}")
             ray.init(
                 address=_server_cfg.ray.address,
                 namespace=_server_cfg.ray.namespace,
                 ignore_reinit_error=True,
+                runtime_env=runtime_env,
             )
 
         # Verify GPU availability

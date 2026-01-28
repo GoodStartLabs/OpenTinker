@@ -27,7 +27,7 @@ rollout:
   gpu_memory_utilization: 0.5
   ignore_eos: False
   enforce_eager: True
-  free_cache_engine: True
+  free_cache_engine: False  # Disabled for CUDA allocator compatibility
   load_format: auto
   tensor_model_parallel_size: 1
   data_parallel_size: 1

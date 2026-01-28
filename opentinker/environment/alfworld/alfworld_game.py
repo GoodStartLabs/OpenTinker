@@ -53,8 +53,16 @@ class ALFWorldGame(AbstractGame):
     REWARD_STEP = -0.01  # Small penalty per step to encourage efficiency
     REWARD_INVALID_ACTION = -0.1
 
+    # Dense reward constants (intermediate progress signals)
+    REWARD_NAVIGATE = 0.05      # Successfully moved to a new location
+    REWARD_TAKE_OBJECT = 0.2    # Picked up an object
+    REWARD_PUT_OBJECT = 0.15    # Put an object somewhere
+    REWARD_OPEN_CLOSE = 0.05    # Opened or closed a container
+    REWARD_USE_APPLIANCE = 0.3  # Used heat/cool/clean (key task actions)
+    REWARD_EXAMINE = 0.1        # Examined an object (for examine tasks)
+
     # Limits
-    DEFAULT_MAX_STEPS = 20
+    DEFAULT_MAX_STEPS = 30
 
     # Task types in ALFWorld
     ALL_TASK_TYPES = [
@@ -447,7 +455,7 @@ class ALFWorldGame(AbstractGame):
             reward = self.REWARD_FAILURE
             obs = f"TIMEOUT: Maximum steps ({self.max_steps}) reached.\n\n{obs}"
 
-        # Adjust rewards
+        # Adjust rewards with dense reward shaping
         if done and reward > 0:
             # Task completed successfully
             final_reward = self.REWARD_SUCCESS
@@ -456,10 +464,8 @@ class ALFWorldGame(AbstractGame):
             # Task failed
             final_reward = self.REWARD_FAILURE
         else:
-            # Step penalty
-            final_reward = self.REWARD_STEP
-            if "Nothing happens" in obs or "invalid" in obs.lower():
-                final_reward = self.REWARD_INVALID_ACTION
+            # Calculate dense rewards based on action success
+            final_reward = self._calculate_dense_reward(parsed_action, obs)
 
         self._done = done
 
@@ -494,27 +500,167 @@ class ALFWorldGame(AbstractGame):
         lines = raw_action.strip().split("\n")
         return lines[-1].strip()
 
+    def _calculate_dense_reward(self, action: str, obs: str) -> float:
+        """Calculate dense reward based on action success.
+
+        Provides intermediate rewards for progress toward task completion.
+        This helps the agent learn faster by providing more frequent feedback.
+
+        Args:
+            action: The action that was taken
+            obs: The observation/feedback from the environment
+
+        Returns:
+            Dense reward value
+        """
+        action_lower = action.lower()
+        obs_lower = obs.lower()
+
+        # Check for invalid actions first
+        if "nothing happens" in obs_lower or "invalid" in obs_lower:
+            return self.REWARD_INVALID_ACTION
+
+        # Navigation reward: successfully moved to a location
+        if action_lower.startswith("go to"):
+            # Successful navigation shows what's at the location
+            if "you see" in obs_lower or "on the" in obs_lower or "is closed" in obs_lower:
+                return self.REWARD_NAVIGATE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Take object reward: successfully picked up an object
+        if action_lower.startswith("take"):
+            if "you pick up" in obs_lower:
+                return self.REWARD_TAKE_OBJECT + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Put object reward: successfully placed an object
+        if action_lower.startswith("put"):
+            if "you put" in obs_lower:
+                return self.REWARD_PUT_OBJECT + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Open/close reward: successfully opened or closed a container
+        if action_lower.startswith("open") or action_lower.startswith("close"):
+            if "you open" in obs_lower or "you close" in obs_lower:
+                return self.REWARD_OPEN_CLOSE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Use appliance rewards: heat, cool, clean (key task actions)
+        if action_lower.startswith("heat"):
+            if "you heat" in obs_lower:
+                return self.REWARD_USE_APPLIANCE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        if action_lower.startswith("cool"):
+            if "you cool" in obs_lower:
+                return self.REWARD_USE_APPLIANCE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        if action_lower.startswith("clean"):
+            if "you clean" in obs_lower:
+                return self.REWARD_USE_APPLIANCE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Use (for examine tasks with desklamp)
+        if action_lower.startswith("use"):
+            if "you turn on" in obs_lower:
+                return self.REWARD_EXAMINE + self.REWARD_STEP
+            return self.REWARD_STEP
+
+        # Examine reward
+        if action_lower.startswith("examine"):
+            return self.REWARD_EXAMINE + self.REWARD_STEP
+
+        # Default: small step penalty
+        return self.REWARD_STEP
+
     def get_system_prompt(self) -> str:
         """Return the system prompt for ALFWorld."""
         return (
             "You are an AI assistant playing ALFWorld, a text-based household environment.\n"
             "Your goal is to complete household tasks by interacting with objects.\n\n"
             "IMPORTANT: You MUST respond in the following format:\n"
-            "1. First, think about your plan in <thinking></thinking> tags\n"
-            "2. Then, output your action in <action></action> tags\n\n"
-            "Common actions:\n"
-            "- go to [receptacle]: Move to a location (e.g., 'go to desk 1')\n"
-            "- take [object] from [receptacle]: Pick up an object\n"
-            "- put [object] in/on [receptacle]: Place an object\n"
-            "- open [receptacle]: Open a container\n"
-            "- close [receptacle]: Close a container\n"
-            "- use [object]: Use a device (lamp, microwave, etc.)\n"
-            "- examine [object]: Look at an object closely\n"
+            "1. First, briefly think about your next step in <thinking></thinking> tags\n"
+            "2. Then, output EXACTLY ONE action in <action></action> tags\n\n"
+            "Available actions:\n"
+            "- go to [receptacle N]: Move to a location (e.g., 'go to desk 1', 'go to fridge 1')\n"
+            "- take [object N] from [receptacle N]: Pick up an object (e.g., 'take apple 1 from countertop 1')\n"
+            "- put [object N] in/on [receptacle N]: Place an object (e.g., 'put apple 1 in/on fridge 1')\n"
+            "- open [receptacle N]: Open a container (e.g., 'open fridge 1')\n"
+            "- close [receptacle N]: Close a container\n"
+            "- use [appliance N]: Use a device like lamp, microwave (e.g., 'use desklamp 1')\n"
+            "- heat [object N] with [appliance N]: Heat object (e.g., 'heat apple 1 with microwave 1')\n"
+            "- cool [object N] with [appliance N]: Cool object (e.g., 'cool apple 1 with fridge 1')\n"
+            "- clean [object N] with [receptacle N]: Clean object (e.g., 'clean apple 1 with sinkbasin 1')\n"
+            "- examine [object N]: Look at an object closely\n"
             "- inventory: Check what you're holding\n"
-            "- look: Look around the room\n\n"
-            "Example response:\n"
-            "<thinking>I need to find the book first. Let me check the desk.</thinking>\n"
-            "<action>go to desk 1</action>"
+            "- look: Look around the current location\n\n"
+            "CRITICAL RULES:\n"
+            "- Always include the number after object/receptacle names (e.g., 'desk 1' not 'desk')\n"
+            "- You must 'go to' a receptacle before you can interact with objects there\n"
+            "- You must 'take' an object before you can 'put' it somewhere\n"
+            "- For heating: go to microwave, put object in microwave, heat, take object out\n"
+            "- For cooling: go to fridge, open fridge, put object in fridge, cool, take object out\n"
+            "- For cleaning: go to sinkbasin, clean object with sinkbasin\n\n"
+            "=== EXAMPLE 1: Pick and Place ===\n"
+            "Task: put a pencil in desk.\n\n"
+            "<thinking>I need to find a pencil. Let me check the shelf first.</thinking>\n"
+            "<action>go to shelf 1</action>\n"
+            "> On the shelf 1, you see a pencil 1, a book 2.\n"
+            "<thinking>Found pencil 1. I'll pick it up.</thinking>\n"
+            "<action>take pencil 1 from shelf 1</action>\n"
+            "> You pick up the pencil 1 from the shelf 1.\n"
+            "<thinking>Now I need to put it in the desk.</thinking>\n"
+            "<action>go to desk 1</action>\n"
+            "> On the desk 1, you see a lamp 1.\n"
+            "<thinking>I'm at the desk. Now I'll put the pencil here.</thinking>\n"
+            "<action>put pencil 1 in/on desk 1</action>\n"
+            "> You put the pencil 1 in/on the desk 1.\n"
+            "SUCCESS!\n\n"
+            "=== EXAMPLE 2: Heat then Place ===\n"
+            "Task: heat some egg and put it in fridge.\n\n"
+            "<thinking>I need to find an egg first.</thinking>\n"
+            "<action>go to countertop 1</action>\n"
+            "> On the countertop 1, you see an egg 1.\n"
+            "<thinking>Found egg 1. I'll take it.</thinking>\n"
+            "<action>take egg 1 from countertop 1</action>\n"
+            "> You pick up the egg 1.\n"
+            "<thinking>Now I need to heat it in the microwave.</thinking>\n"
+            "<action>go to microwave 1</action>\n"
+            "> The microwave 1 is closed.\n"
+            "<thinking>I need to open it first.</thinking>\n"
+            "<action>open microwave 1</action>\n"
+            "> You open the microwave 1.\n"
+            "<thinking>Now put the egg in and heat it.</thinking>\n"
+            "<action>put egg 1 in/on microwave 1</action>\n"
+            "> You put the egg 1 in/on the microwave 1.\n"
+            "<action>heat egg 1 with microwave 1</action>\n"
+            "> You heat the egg 1 using the microwave 1.\n"
+            "<thinking>Egg is heated. Take it out and put in fridge.</thinking>\n"
+            "<action>take egg 1 from microwave 1</action>\n"
+            "> You pick up the egg 1.\n"
+            "<action>go to fridge 1</action>\n"
+            "> The fridge 1 is closed.\n"
+            "<action>open fridge 1</action>\n"
+            "> You open the fridge 1.\n"
+            "<action>put egg 1 in/on fridge 1</action>\n"
+            "> You put the egg 1 in/on the fridge 1.\n"
+            "SUCCESS!\n\n"
+            "=== EXAMPLE 3: Examine in Light ===\n"
+            "Task: examine the book with the desklamp.\n\n"
+            "<thinking>I need to find a book and bring it to a desklamp.</thinking>\n"
+            "<action>go to shelf 1</action>\n"
+            "> On the shelf 1, you see a book 1.\n"
+            "<action>take book 1 from shelf 1</action>\n"
+            "> You pick up the book 1.\n"
+            "<thinking>Now find a desklamp.</thinking>\n"
+            "<action>go to desk 1</action>\n"
+            "> On the desk 1, you see a desklamp 1.\n"
+            "<thinking>Use the desklamp to examine the book.</thinking>\n"
+            "<action>use desklamp 1</action>\n"
+            "> You turn on the desklamp 1.\n"
+            "SUCCESS!\n\n"
+            "Now complete the given task. Keep your thinking brief and take action!"
         )
 
     def get_initial_user_message(self) -> str:

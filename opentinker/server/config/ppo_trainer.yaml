@@ -81,10 +81,12 @@ algorithm:
   _target_: verl.trainer.config.AlgoConfig
 
   # Discount factor for future rewards
-  gamma: 1.0
+  # Reduced from 1.0 to 0.99 for slight discounting
+  gamma: 0.99
 
   # Trade-off between bias and variance in the GAE estimator
-  lam: 1.0
+  # Reduced from 1.0 to 0.95 for shorter effective horizon
+  lam: 0.95
 
   # Advantage estimator type: "gae", "grpo", "reinforce_plus_plus", etc.
   adv_estimator: gae
@@ -104,16 +106,19 @@ algorithm:
     _target_: verl.trainer.config.KLControlConfig
 
     # KL control type: "fixed" or "adaptive"
-    type: fixed
+    # Changed to adaptive to auto-adjust KL penalty based on actual divergence
+    type: adaptive
 
     # Initial coefficient for KL penalty
-    kl_coef: 0.001
+    kl_coef: 0.02
 
-    # Horizon value for adaptive controller (if enabled)
-    horizon: 10000
+    # Horizon value for adaptive controller
+    # Reduced from 10000 to 1000 for faster adaptation
+    horizon: 1000
 
     # Target KL divergence (used for adaptive controller)
-    target_kl: 0.1
+    # Set to 0.05 for tighter policy updates
+    target_kl: 0.05
 
   # Whether to enable preference feedback PPO
   use_pf_ppo: False
@@ -212,7 +217,8 @@ trainer:
   test_freq: -1
 
   # Number of iterations to warm up the critic before updating policy
-  critic_warmup: 0
+  # Added 5 steps of critic warmup for better value estimates
+  critic_warmup: 5
 
   # Default path to distributed filesystem for saving checkpoints
   default_hdfs_dir: null

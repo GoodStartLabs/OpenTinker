@@ -1,0 +1,113 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs and outputs
+logs/
+outputs/
+*.log
+*.out
+wandb/
+mlruns/
+
+# Checkpoints and models
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Data (can be large)
+data/raw/
+data/processed/
+*.parquet
+*.jsonl
+*.csv
+*.tsv
+
+# Scheduler data
+scheduler_users.db
+scheduler_data/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Docker
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# CI/CD
+.pre-commit-config.yaml
+.gitlab-ci.yml
+.travis.yml
+
+# Other
+.env
+.env.*
+*.pem
+*.key
+*.crt

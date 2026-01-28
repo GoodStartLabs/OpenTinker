@@ -74,7 +74,7 @@ class GymEnvironmentInteraction(BaseInteraction):
             "observation_template", "{observation}"
         )
         # Job ID for statistics isolation when using shared game servers
-        self.job_id: str = config.get("job_id", "default")
+        self.job_id: str = str(config.get("job_id", "default"))
 
         # Generate sharded endpoints if env_shards > 1
         self.env_endpoints: Optional[list[str]] = None

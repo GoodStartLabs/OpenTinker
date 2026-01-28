@@ -19,7 +19,7 @@ wandb_key: 2ed6f8544ac3e30d5c08879166cc10d9c6232448
 tokenizer_path: "Qwen/Qwen2.5-3B-Instruct"
 
 # Training parameters
-batch_size: 8
+batch_size: 4
 num_workers: 4
 # Training duration - set ONE of these (num_steps takes precedence if both set)
 num_epochs: null # Number of epochs (null = use num_steps)
@@ -34,11 +34,12 @@ val_batch_size: 50 # Total validation samples (null = 50)
 # Generation parameters
 temperature: 0.7 # Lower temperature for more focused responses
 top_p: 1
-max_new_tokens: 8192 # TOTAL response budget for entire multi-turn trajectory (NOT per-turn!)
+# Reduced from 12288 to 4096 to force concise actions and prevent overly long rollouts
+max_new_tokens: 4096 # TOTAL response budget for entire multi-turn trajectory (NOT per-turn!)
 max_prompt_tokens: 4096
 
-# Algorithm (must be agent_loop for multi-turn)
-algorithm: "agent_loop"
+# Algorithm (single_turn for HF rollout, agent_loop for vLLM/SGLang async)
+algorithm: "single_turn"
 
 # RL Algorithm settings (passed to server via scheduler)
 # adv_estimator options:
@@ -61,8 +62,9 @@ interaction:
     # If you run the ALFWorld env server in sharded mode (--shards N),
     # set env_shards=N. The client will route each instance_id to a stable shard.
     env_shards: 32
-    max_steps: 10 # ALFWorld episodes max steps
-    max_total_steps: 10 # Max environment step calls (controls rollout turns)
+    # Reduced from 50 to 30 to force faster task completion
+    max_steps: 30 # ALFWorld episodes max steps
+    max_total_steps: 30 # Max environment step calls (controls rollout turns)
     observation_template: "{observation}"
     # ALFWorld specific settings
     split: train # train, eval_in_distribution, eval_out_of_distribution
@@ -70,7 +72,8 @@ interaction:
 multi_turn:
   max_user_turns: ${interaction.config.max_total_steps}
   max_assistant_turns: ${interaction.config.max_total_steps}
-  max_tokens_per_turn: 512 # Per-turn response limit (optional, null for no limit)
+  # Reduced from 512 to 256 to encourage concise reasoning
+  max_tokens_per_turn: 256 # Per-turn response limit (optional, null for no limit)
   # Weave tracing (optional - runs on SERVER side)
   weave_project: "zsqzz/alfworld-env-test"
   experiment_name: "alfworld_interaction"
