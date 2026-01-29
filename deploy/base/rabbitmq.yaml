@@ -18,6 +18,8 @@ spec:
         app: rabbitmq
         component: message-broker
     spec:
+      securityContext:
+        fsGroup: 999
       containers:
       - name: rabbitmq
         image: rabbitmq:4.0.9-management-alpine
