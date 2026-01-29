@@ -7,6 +7,9 @@ resources:
   - api.yaml
   - rabbitmq.yaml
   - secret-store.yaml
+  - worker.yaml
+  - worker-serviceaccount.yaml
+  - worker-keda-autoscaler.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/api
