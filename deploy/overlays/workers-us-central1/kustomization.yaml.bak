@@ -1,10 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: opentinker-workers-us-east4
+namespace: opentinker-workers-us-central1
 
 resources:
-  - ../../workers-base
+  - ../../base/worker.yaml
+  - ../../base/worker-serviceaccount.yaml
+  - ../../base/worker-keda-autoscaler.yaml
   - namespace.yaml
 
 images:
@@ -12,7 +14,7 @@ images:
     newTag: latest
 
 patches:
-  # Region-specific configuration for us-east4
+  # Region-specific configuration for us-central1
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
@@ -23,14 +25,14 @@ patches:
           spec:
             nodeSelector:
               cloud.google.com/gke-accelerator: nvidia-h100-80gb
-              topology.kubernetes.io/region: us-east4
+              topology.kubernetes.io/region: us-central1
             containers:
             - name: worker
               env:
               - name: WORKER_REGION
-                value: "us-east4-a"
+                value: "us-central1"
               - name: CELERY_BROKER_URL
-                value: "amqp://admin:admin@10.128.0.53:5672//"
+                value: "amqp://admin:admin@rabbitmq.opentinker.svc.cluster.local:5672//"
     target:
       kind: Deployment
       name: worker
@@ -42,12 +44,12 @@ patches:
       metadata:
         name: worker
         annotations:
-          iam.gke.io/gcp-service-account: opentinker-worker-us-east4@development-472321.iam.gserviceaccount.com
+          iam.gke.io/gcp-service-account: opentinker-worker-us-central1@development-472321.iam.gserviceaccount.com
     target:
       kind: ServiceAccount
       name: worker
 
 commonLabels:
-  region: us-east4
+  region: us-central1
   gpu-type: h100
-  app.kubernetes.io/instance: opentinker-workers-us-east4
+  app.kubernetes.io/instance: opentinker-workers-us-central1

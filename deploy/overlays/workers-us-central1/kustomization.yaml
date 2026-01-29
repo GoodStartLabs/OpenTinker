@@ -4,9 +4,7 @@ kind: Kustomization
 namespace: opentinker-workers-us-central1
 
 resources:
-  - ../../base/worker.yaml
-  - ../../base/worker-serviceaccount.yaml
-  - ../../base/worker-keda-autoscaler.yaml
+  - ../../workers-base
   - namespace.yaml
 
 images:
