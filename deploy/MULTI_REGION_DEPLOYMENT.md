@@ -64,19 +64,19 @@ kubectl config rename-context gke_${PROJECT_ID}_us-east4_us-east4-autopilot-clus
 cd OpenTinker
 
 # Build API image
-docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/gsl-opentinker-api:test \
+docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/api:latest \
   -f service/api/Dockerfile \
   service/api/
 
 # Build worker image with OpenTinker + CUDA + Celery
-docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/gsl-opentinker-worker:test \
+docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/worker:latest \
   -f service/worker/Dockerfile \
   .
 
 # Push to Artifact Registry
 gcloud auth configure-docker us-central1-docker.pkg.dev
-docker push us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/gsl-opentinker-api:test
-docker push us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/gsl-opentinker-worker:test
+docker push us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/api:latest
+docker push us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/worker:latest
 ```
 
 ## Step 1: Deploy Control Plane (us-central1)
@@ -433,7 +433,7 @@ gcloud artifacts repositories get-iam-policy opentinker \
   --location=us-central1
 
 # Manually pull image to test
-docker pull us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/gsl-opentinker-worker:latest
+docker pull us-central1-docker.pkg.dev/$PROJECT_ID/opentinker/worker:latest
 ```
 
 ### High Cross-Region Latency

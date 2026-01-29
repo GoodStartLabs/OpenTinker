@@ -4,16 +4,18 @@ kind: Kustomization
 namespace: opentinker-prod
 
 resources:
-  - ../../base
+  - ../../base/api.yaml
+  - ../../base/rabbitmq.yaml
+  - ../../base/secret-store.yaml
   - namespace.yaml
   - external-secret.yaml
   - ingress-route.yaml
 
 images:
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-api
-    newTag: prod-v1.0.0
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker
-    newTag: prod-v1.0.0
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/api
+    newTag: latest
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
+    newTag: latest
 
 patches:
   # Increase API replicas for production

@@ -4,15 +4,17 @@ kind: Kustomization
 namespace: opentinker-dev
 
 resources:
-  - ../../base
+  - ../../base/api.yaml
+  - ../../base/rabbitmq.yaml
+  - ../../base/secret-store.yaml
   - namespace.yaml
   - external-secret.yaml
 
 images:
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-api
-    newTag: dev-latest
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker
-    newTag: dev-latest
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/api
+    newTag: latest
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
+    newTag: latest
 
 patches:
   # Update service account with Workload Identity

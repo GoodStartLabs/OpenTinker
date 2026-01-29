@@ -13,9 +13,9 @@ resources:
   - secret-store.yaml
 
 images:
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-api
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/api
     newTag: latest
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
     newTag: latest
 
 commonLabels:

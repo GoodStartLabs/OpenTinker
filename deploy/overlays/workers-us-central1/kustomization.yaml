@@ -10,8 +10,8 @@ resources:
   - namespace.yaml
 
 images:
-  - name: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker
-    newTag: test
+  - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
+    newTag: latest
 
 patches:
   # Region-specific configuration for us-central1

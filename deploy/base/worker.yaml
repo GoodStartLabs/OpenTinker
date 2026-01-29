@@ -20,7 +20,7 @@ spec:
       serviceAccountName: worker
       containers:
       - name: worker
-        image: us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker:latest
+        image: us-central1-docker.pkg.dev/development-472321/opentinker/worker:latest
         env:
         - name: CELERY_BROKER_URL
           value: "amqp://admin:admin@rabbitmq.opentinker.svc.cluster.local:5672//"
