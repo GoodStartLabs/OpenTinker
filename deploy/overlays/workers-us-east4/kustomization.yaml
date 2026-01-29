@@ -32,7 +32,7 @@ patches:
               - name: WORKER_REGION
                 value: "us-east4-a"
               - name: CELERY_BROKER_URL
-                value: "amqp://admin:admin@RABBITMQ_EXTERNAL_IP:5672//"
+                value: "amqp://admin:admin@10.128.0.53:5672//"
     target:
       kind: Deployment
       name: worker
