@@ -16,6 +16,7 @@ weave_project: null
 wandb_key: 2ed6f8544ac3e30d5c08879166cc10d9c6232448
 
 # Model and tokenizer
+model_path: "Qwen/Qwen2.5-3B-Instruct"
 tokenizer_path: "Qwen/Qwen2.5-3B-Instruct"
 
 # Training parameters

@@ -37,9 +37,9 @@ RUN apt-get update && \
 RUN PIP_CONSTRAINT="" pip install --no-cache-dir --upgrade "pyarrow==21.0.0"
 
 # Install core OpenTinker dependencies (from pyproject.toml)
-# Disable PIP_CONSTRAINT to allow pyarrow 21.0.0
+# Note: transformers 5.0.0 removed AutoModelForVision2Seq, need 4.47.x
 RUN PIP_CONSTRAINT="" pip install --no-cache-dir \
-    "transformers>=4.35.0" \
+    "transformers>=4.45.0,<5.0.0" \
     "datasets>=4.1.0" \
     "ray[default]>=2.9.0" \
     "fastapi>=0.104.0" \
@@ -89,4 +89,3 @@ ENTRYPOINT ["/bin/bash", "/workspace/OpenTinker/start_services.sh"]
 
 # Default command (can be overridden)
 CMD []
-

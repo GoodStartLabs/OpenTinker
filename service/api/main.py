@@ -27,7 +27,7 @@ security = HTTPBearer()
 
 # Celery configuration
 CELERY_BROKER = os.getenv("CELERY_BROKER_URL", "amqp://admin:admin@rabbitmq:5672//")
-celery_app = Celery("opentinker", broker=CELERY_BROKER)
+celery_app = Celery("opentinker", broker=CELERY_BROKER, backend='rpc://')
 
 # API key authentication
 API_KEY = os.getenv("API_KEY", "opentinker-api-key-2025")

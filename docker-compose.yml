@@ -1,0 +1,58 @@
+# OpenTinker Service Stack - Local Testing
+#
+# Usage:
+#   docker-compose up -d      # Start services
+#   docker-compose logs -f    # Watch logs
+#
+# Test endpoints:
+#   curl http://localhost:8000/health
+#   curl -X POST http://localhost:8000/train -H "Authorization: Bearer test-api-key" -H "Content-Type: application/json" -d '{"task":"alfworld","num_gpus":1}'
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: api:latest
+    ports:
+      - "8000:8000"
+    environment:
+      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//
+      API_KEY: test-api-key
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    image: worker:latest
+    environment:
+      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//
+      SCHEDULER_URL: http://host.docker.internal:8780  # Connect to scheduler on host
+    volumes:
+      - ./logs:/logs
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    # GPU access and PyTorch recommended settings
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

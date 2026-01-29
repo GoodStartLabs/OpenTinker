@@ -39,8 +39,8 @@ app.conf.update(
     task_time_limit=7200,  # Hard limit: 2 hours
     task_soft_time_limit=7000,  # Soft limit: ~1h 56m
 
-    # Results
-    result_backend=None,  # No result backend (use task return value)
+    # Results (use RPC backend via RabbitMQ)
+    result_backend='rpc://',  # Use RabbitMQ for results
     result_expires=3600,  # Expire results after 1 hour
 
     # Task routing
