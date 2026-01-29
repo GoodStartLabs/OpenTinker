@@ -4,9 +4,7 @@ kind: Kustomization
 namespace: opentinker-dev
 
 resources:
-  - ../../base/api.yaml
-  - ../../base/rabbitmq.yaml
-  - ../../base/secret-store.yaml
+  - ../../base
   - namespace.yaml
   - external-secret.yaml
 

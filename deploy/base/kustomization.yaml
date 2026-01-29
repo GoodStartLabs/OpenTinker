@@ -4,11 +4,7 @@ kind: Kustomization
 namespace: opentinker
 
 resources:
-  - namespace.yaml
   - api.yaml
-  - worker.yaml
-  - worker-serviceaccount.yaml
-  - worker-keda-autoscaler.yaml
   - rabbitmq.yaml
   - secret-store.yaml
 
