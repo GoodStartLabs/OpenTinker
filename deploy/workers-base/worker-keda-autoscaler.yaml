@@ -1,0 +1,33 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: opentinker-worker-scaler
+  namespace: opentinker
+  labels:
+    app: opentinker-worker
+spec:
+  scaleTargetRef:
+    name: worker
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  idleReplicaCount: 1
+  cooldownPeriod: 300  # 5 minutes
+  triggers:
+  - type: rabbitmq
+    metadata:
+      queueName: opentinker-training
+      queueLength: "5"  # Scale up when > 5 messages per worker
+      protocol: amqp
+    authenticationRef:
+      name: keda-rabbitmq-auth
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-rabbitmq-auth
+  namespace: opentinker
+spec:
+  secretTargetRef:
+  - parameter: host
+    name: keda-rabbitmq-secret
+    key: host
