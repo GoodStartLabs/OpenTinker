@@ -39,8 +39,9 @@ patches:
               env:
               - name: WORKER_REGION
                 value: "us-east4-a"
+              # Internal LoadBalancer IP of rabbitmq-external service in us-central1 cluster
               - name: CELERY_BROKER_URL
-                value: "amqp://admin:admin@rabbitmq.opentinker-dev.svc.cluster.local:5672//"
+                value: "amqp://admin:admin@10.128.0.37:5672//"
     target:
       kind: Deployment
       name: worker
