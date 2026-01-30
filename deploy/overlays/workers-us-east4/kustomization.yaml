@@ -23,8 +23,9 @@ patches:
         template:
           spec:
             nodeSelector:
-              # H100 80GB GPU type
+              # H100 80GB GPU type with 8 GPUs
               cloud.google.com/gke-accelerator: nvidia-h100-80gb
+              cloud.google.com/gke-accelerator-count: "8"
             containers:
             - name: worker
               env:
