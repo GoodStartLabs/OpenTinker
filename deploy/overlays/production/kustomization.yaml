@@ -60,7 +60,6 @@ patches:
         name: opentinker-worker-scaler
       spec:
         minReplicaCount: 1
-        idleReplicaCount: 1
     target:
       kind: ScaledObject
       name: opentinker-worker-scaler

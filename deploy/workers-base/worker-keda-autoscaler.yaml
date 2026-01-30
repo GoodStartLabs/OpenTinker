@@ -8,9 +8,8 @@ metadata:
 spec:
   scaleTargetRef:
     name: worker
-  minReplicaCount: 1
+  minReplicaCount: 1   # At least 1 worker (idleReplicaCount only supports 0 in KEDA; use minReplicaCount for standby)
   maxReplicaCount: 20
-  idleReplicaCount: 1
   cooldownPeriod: 300  # 5 minutes
   triggers:
   - type: rabbitmq
