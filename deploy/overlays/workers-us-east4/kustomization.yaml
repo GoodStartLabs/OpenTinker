@@ -7,14 +7,13 @@ resources:
   - ../../workers-base
   - namespace.yaml
   - keda-rabbitmq-secret.yaml
-  - h100-computeclass.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
     newTag: latest
 
 patches:
-  # Use custom ComputeClass for H100 GPUs with zone priority (us-east4-a first)
+  # H100 GPU configuration - Autopilot automatically uses Accelerator compute class
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
@@ -24,17 +23,17 @@ patches:
         template:
           spec:
             nodeSelector:
-              # Use our custom ComputeClass that prioritizes us-east4-a
-              cloud.google.com/compute-class: h100-8gpu
+              # H100 80GB GPU type
+              cloud.google.com/gke-accelerator: nvidia-h100-80gb
             containers:
             - name: worker
               env:
               - name: WORKER_REGION
-                value: "us-east4-a"
+                value: "us-east4"
               # Internal LoadBalancer IP of rabbitmq-external service in us-central1 cluster
               - name: CELERY_BROKER_URL
                 value: "amqp://admin:admin@10.128.0.37:5672//"
-              # Override GPU count to 8 (matches a3-highgpu-8g machine type)
+              # Request 8 H100 GPUs (a3-highgpu-8g machine type)
               resources:
                 requests:
                   memory: "64Gi"
