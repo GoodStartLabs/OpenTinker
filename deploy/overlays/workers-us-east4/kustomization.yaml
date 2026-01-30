@@ -6,6 +6,7 @@ namespace: opentinker-workers-us-east4
 resources:
   - ../../workers-base
   - namespace.yaml
+  - keda-rabbitmq-secret.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
@@ -30,7 +31,7 @@ patches:
               - name: WORKER_REGION
                 value: "us-east4-a"
               - name: CELERY_BROKER_URL
-                value: "amqp://admin:admin@10.128.0.37:5672//"
+                value: "amqp://admin:admin@rabbitmq.opentinker-dev.svc.cluster.local:5672//"
     target:
       kind: Deployment
       name: worker
