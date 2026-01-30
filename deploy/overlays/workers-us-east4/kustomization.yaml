@@ -13,7 +13,7 @@ images:
     newTag: latest
 
 patches:
-  # Region/zone: us-east4-a where H100 GPUs are available (us-east4-b hit GCE quota)
+  # Region us-east4 required; prefer zone us-east4-a (GPUs available), fall back to us-east4-b/c if needed
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
@@ -25,7 +25,15 @@ patches:
             nodeSelector:
               cloud.google.com/gke-accelerator: nvidia-h100-80gb
               topology.kubernetes.io/region: us-east4
-              topology.kubernetes.io/zone: us-east4-a
+            affinity:
+              nodeAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  preference:
+                    matchExpressions:
+                    - key: topology.kubernetes.io/zone
+                      operator: In
+                      values: [us-east4-a]
             containers:
             - name: worker
               env:
