@@ -15,7 +15,8 @@ spec:
   - type: rabbitmq
     metadata:
       queueName: opentinker-training
-      queueLength: "5"  # Scale up when > 5 messages per worker
+      mode: QueueLength
+      value: "1"  # Scale up when > 1 messages per worker
       protocol: amqp
     authenticationRef:
       name: keda-rabbitmq-auth
