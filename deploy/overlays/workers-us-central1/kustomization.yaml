@@ -6,6 +6,7 @@ namespace: opentinker-workers-us-central1
 resources:
   - ../../workers-base
   - namespace.yaml
+  - keda-rabbitmq-secret.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
@@ -30,10 +31,32 @@ patches:
               - name: WORKER_REGION
                 value: "us-central1"
               - name: CELERY_BROKER_URL
-                value: "amqp://admin:admin@rabbitmq.opentinker.svc.cluster.local:5672//"
+                value: "amqp://admin:admin@rabbitmq.opentinker-dev.svc.cluster.local:5672//"
     target:
       kind: Deployment
       name: worker
+
+  # Cap replicas and scale only on ready messages (not unacked) in us-central1
+  - patch: |-
+      apiVersion: keda.sh/v1alpha1
+      kind: ScaledObject
+      metadata:
+        name: opentinker-worker-scaler
+      spec:
+        maxReplicaCount: 4
+        triggers:
+        - type: rabbitmq
+          metadata:
+            queueName: opentinker-training
+            mode: QueueLength
+            value: "1"
+            protocol: http
+            excludeUnacknowledged: "true"
+          authenticationRef:
+            name: keda-rabbitmq-auth
+    target:
+      kind: ScaledObject
+      name: opentinker-worker-scaler
 
   # Update service account with Workload Identity
   - patch: |-
