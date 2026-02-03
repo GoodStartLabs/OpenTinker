@@ -1,38 +1,3 @@
-# Multi-Region OpenTinker Deployment Guide
-
-Deploy OpenTinker training workers across 2 regions (us-central1, us-east4) for dynamic H100 GPU availability.
-
-## Architecture Overview
-
-```                              
-                               FastAPI Training Entry Point (us-central1)
-                                          ↓
-                            RabbitMQ (us-central1) ← Central Control Plane
-                                          ↓
-        ┌─────────────────────────────────┴──────────────────────────────┐
-        ↓                                 ↓                              ↓
-        ↓                                 ↓                              ↓
-Workers (us-central1)             Workers (us-east4)                 Workers (...) 
-  T4 GPUs                              H100 GPUs                         H200 GPUs
-
-Existing Autopilot Clusters:
-- dev-autopilot-cluster (us-central1)
-- us-east4-autopilot-cluster (us-east4)
-```
-
-**Key Features:**
-- ✅ Enabling workers deployment to any region based on GPU availability
-- ✅ Single RabbitMQ message queue for all regions
-- ✅ Cross-region communication via GCP Internal Load Balancer
-- ✅ KEDA auto-scaling per region
-- ✅ Independent worker scaling in each region
-- TODO: Worker logs pushed to internal monitoring tool or external (weights & biases)
-- TODO: Prometheus metrics for training jobs
-- TODO: Grafana dashboards
-- TODO: Job result storage in GCS
-
-## Prerequisites
-
 ### 1. Existing GKE Autopilot Clusters
 
 This guide uses your existing Autopilot clusters:
