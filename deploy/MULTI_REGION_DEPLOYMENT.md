@@ -4,17 +4,16 @@ Deploy OpenTinker training workers across 2 regions (us-central1, us-east4) for 
 
 ## Architecture Overview
 
-```
-                    Argo Workflows (us-central1)
-                              ↓
-                    FastAPI Gateway (us-central1)
-                              ↓
-                    RabbitMQ (us-central1) ← Control Plane
-                              ↓
-        ┌─────────────────────┴─────────────────────┐
-        ↓                                           ↓
-Workers (us-central1)                      Workers (us-east4)
-  4x H100 GPUs                               4x H100 GPUs
+```                              
+                               FastAPI Training Entry Point (us-central1)
+                                          ↓
+                            RabbitMQ (us-central1) ← Central Control Plane
+                                          ↓
+        ┌─────────────────────────────────┴──────────────────────────────┐
+        ↓                                 ↓                              ↓
+        ↓                                 ↓                              ↓
+Workers (us-central1)             Workers (us-east4)                 Workers (...) 
+  T4 GPUs                              H100 GPUs                         H200 GPUs
 
 Existing Autopilot Clusters:
 - dev-autopilot-cluster (us-central1)
@@ -22,11 +21,15 @@ Existing Autopilot Clusters:
 ```
 
 **Key Features:**
-- ✅ Workers deployed to any region based on H100 availability
+- ✅ Enabling workers deployment to any region based on GPU availability
 - ✅ Single RabbitMQ message queue for all regions
 - ✅ Cross-region communication via GCP Internal Load Balancer
 - ✅ KEDA auto-scaling per region
 - ✅ Independent worker scaling in each region
+- TODO: Worker logs pushed to internal monitoring tool or external (weights & biases)
+- TODO: Prometheus metrics for training jobs
+- TODO: Grafana dashboards
+- TODO: Job result storage in GCS
 
 ## Prerequisites
 
@@ -471,10 +474,3 @@ gcloud iam service-accounts delete opentinker-worker-us-east4@$PROJECT_ID.iam.gs
 gcloud iam service-accounts delete opentinker-worker-us-west1@$PROJECT_ID.iam.gserviceaccount.com --quiet
 ```
 
-## Next Steps
-
-1. **Add more regions** as H100 availability expands (europe-west4, asia-southeast1)
-2. **Set up Prometheus/Grafana** for metrics and dashboards
-3. **Implement priority queues** for urgent training jobs
-4. **Add checkpoint storage** to GCS for training results
-5. **Configure spot/preemptible nodes** for cost savings on non-critical workloads
