@@ -21,23 +21,26 @@ Training (H100 GPUs)
 ## Directory Structure
 
 ```
-service/
-├── api/              # FastAPI gateway (us-central1)
-│   ├── main.py       # FastAPI app with /health, /train, /status endpoints
-│   ├── models.py     # Pydantic request/response models
-│   ├── requirements.txt
-│   └── Dockerfile
+OpenTinker/
+├── Dockerfile        # Runtime image (volume mount based)
+├── Dockerfile.worker # GPU worker image (self-contained, builds from root)
 │
-├── worker/           # Celery worker (us-east4-a)
-│   ├── tasks.py      # run_training task
-│   ├── scheduler_client.py  # OpenTinker scheduler HTTP client
-│   ├── celery_app.py # Celery configuration
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-└── shared/           # Shared utilities
-    ├── config.py     # Environment configuration
-    └── models.py     # Shared Pydantic models
+└── service/
+    ├── api/              # FastAPI gateway (us-central1)
+    │   ├── main.py       # FastAPI app with /health, /train, /status endpoints
+    │   ├── models.py     # Pydantic request/response models
+    │   ├── requirements.txt
+    │   └── Dockerfile
+    │
+    ├── worker/           # Celery worker (us-east4-a)
+    │   ├── tasks.py      # run_training task
+    │   ├── scheduler_client.py  # OpenTinker scheduler HTTP client
+    │   ├── celery_app.py # Celery configuration
+    │   └── requirements.txt
+    │
+    └── shared/           # Shared utilities
+        ├── config.py     # Environment configuration
+        └── models.py     # Shared Pydantic models
 ```
 
 ## Components
@@ -77,8 +80,9 @@ Celery worker that orchestrates training jobs by calling OpenTinker scheduler.
 
 **Build:**
 ```bash
-cd worker/
-docker build -t us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker:latest .
+# Worker Dockerfile is at OpenTinker root (self-contained image)
+cd ~/GSL/OpenTinker
+docker build -f Dockerfile.worker -t us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker:latest .
 docker push us-central1-docker.pkg.dev/development-472321/opentinker/gsl-opentinker-worker:latest
 ```
 
