@@ -29,7 +29,7 @@ external_lib: null
 
 # override hf config
 override_config:
-  attn_implementation: eager
+  attn_implementation: flash_attention_2
 
 # whether to enable gradient checkpointing. Only valid when we use hf model definition
 enable_gradient_checkpointing: True

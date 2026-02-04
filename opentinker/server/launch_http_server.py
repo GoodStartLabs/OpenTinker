@@ -119,7 +119,8 @@ def main(cfg):
         cfg.trainer.logger = ["console", "wandb"]
         cfg.trainer.project_name = "OpenTinker"
         cfg.trainer.experiment_name = "qwen2.5-3b"
-        cfg.trainer.n_gpus_per_node = 4
+        # Use num_gpus from client config if provided, otherwise default to 8
+        cfg.trainer.n_gpus_per_node = cfg.get("num_gpus", 8)
         cfg.trainer.val_before_train = True
         cfg.trainer.nnodes = 1
         cfg.trainer.save_freq = 500

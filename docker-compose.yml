@@ -49,6 +49,9 @@ services:
     ulimits:
       memlock: -1
       stack: 67108864
+      nofile:
+        soft: 65536
+        hard: 65536
     deploy:
       resources:
         reservations:
