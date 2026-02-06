@@ -7,6 +7,7 @@ resources:
   - ../../workers-base
   - namespace.yaml
   - keda-rabbitmq-secret.yaml
+  - external-secret-wandb.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
@@ -57,6 +58,12 @@ patches:
     target:
       kind: ScaledObject
       name: opentinker-worker-scaler
+
+  # GCP Secret Store (namespace for workload identity)
+  - path: secret-store-patch.yaml
+    target:
+      kind: SecretStore
+      name: gcp-secret-store
 
   # Update service account with Workload Identity
   - patch: |-

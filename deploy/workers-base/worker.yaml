@@ -32,6 +32,9 @@ spec:
           value: "cuda"
         - name: HF_HUB_ENABLE_HF_TRANSFER
           value: "1"
+        envFrom:
+        - secretRef:
+            name: wandb-api-key
         resources:
           requests:
             memory: "32Gi"

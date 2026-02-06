@@ -5,6 +5,7 @@ resources:
   - worker.yaml
   - worker-serviceaccount.yaml
   - worker-keda-autoscaler.yaml
+  - secret-store.yaml
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
