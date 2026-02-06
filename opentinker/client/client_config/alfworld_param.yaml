@@ -6,7 +6,7 @@ project_name: opentinker
 experiment_name: alfworld_training
 
 # Logging
-logger_backends: ["console"]
+logger_backends: ["console", "wandb"]
 
 # Tracing (optional)
 enable_tracing: true

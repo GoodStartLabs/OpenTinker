@@ -113,7 +113,7 @@ def run_training(self, training_request: dict):
             env=env,
             capture_output=True,
             text=True,
-            timeout=7200  # 2 hour timeout
+            timeout=604800  # 7 day timeout for long training runs
         )
 
         # Log output
@@ -154,7 +154,7 @@ def run_training(self, training_request: dict):
         }
 
     except subprocess.TimeoutExpired:
-        error_msg = f"Training timeout after 2 hours"
+        error_msg = f"Training timeout after 7 days"
         logger.error(f"[{request_id}] {error_msg}")
         raise Exception(error_msg)
 

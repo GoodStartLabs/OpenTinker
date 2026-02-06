@@ -35,9 +35,9 @@ app.conf.update(
     task_acks_late=True,  # Acknowledge after task completes
     worker_prefetch_multiplier=1,  # Only fetch one task at a time
 
-    # Timeouts (2 hours for training jobs)
-    task_time_limit=7200,  # Hard limit: 2 hours
-    task_soft_time_limit=7000,  # Soft limit: ~1h 56m
+    # Timeouts (7 days for long training jobs)
+    task_time_limit=604800,  # Hard limit: 7 days
+    task_soft_time_limit=604600,  # Soft limit: 7 days - 200s
 
     # Results (use RPC backend via RabbitMQ)
     result_backend='rpc://',  # Use RabbitMQ for results
