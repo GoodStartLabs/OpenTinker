@@ -15,8 +15,8 @@ services:
       - "5672:5672"    # AMQP
       - "15672:15672"  # Management UI
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -28,8 +28,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//
-      API_KEY: test-api-key
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672//
+      API_KEY: ${API_KEY}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -37,8 +37,9 @@ services:
   worker:
     image: worker:latest
     environment:
-      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672//
       SCHEDULER_URL: http://host.docker.internal:8780  # Connect to scheduler on host
+      WANDB_API_KEY: ${WANDB_API_KEY}
     volumes:
       - ./logs:/logs
     depends_on:
