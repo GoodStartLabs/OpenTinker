@@ -35,11 +35,13 @@ services:
         condition: service_healthy
 
   worker:
-    image: worker:latest
+    image: worker:tinker
     environment:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672//
       SCHEDULER_URL: http://host.docker.internal:8780  # Connect to scheduler on host
       WANDB_API_KEY: ${WANDB_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}  # For Diplomacy opponent LLM inference
+      DIPLOMACY_OPPONENT_MODEL: ${DIPLOMACY_OPPONENT_MODEL:-x-ai/grok-4-fast}
     volumes:
       - ./logs:/logs
     depends_on:

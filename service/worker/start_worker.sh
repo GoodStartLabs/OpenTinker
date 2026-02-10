@@ -59,7 +59,17 @@ python3 -m opentinker.environment.alfworld.alfworld_server \
 ALFWORLD_PID=$!
 echo "ALFWorld server started (PID: $ALFWORLD_PID)"
 
-# Wait for env server to initialize
+# Start Diplomacy environment server in background
+echo "Starting Diplomacy Environment Server..."
+python3 -m opentinker.environment.diplomacy.diplomacy_server \
+    --port 8093 \
+    --opponent_model "${DIPLOMACY_OPPONENT_MODEL:-x-ai/grok-4-fast}" \
+    > /logs/diplomacy_env.log 2>&1 &
+
+DIPLOMACY_PID=$!
+echo "Diplomacy server started (PID: $DIPLOMACY_PID)"
+
+# Wait for env servers to initialize
 sleep 3
 
 echo ""
@@ -68,6 +78,7 @@ echo "Background services started!"
 echo "=========================================="
 echo "Scheduler: http://localhost:8780 (log: /logs/scheduler.log)"
 echo "ALFWorld Environment: http://localhost:8092 (log: /logs/alfworld_env.log)"
+echo "Diplomacy Environment: http://localhost:8093 (log: /logs/diplomacy_env.log)"
 echo ""
 echo "Starting Celery worker..."
 echo "=========================================="

@@ -28,6 +28,7 @@ TASK_SCRIPTS = {
     "math": "math_rl.py",
     "math_tool": "math_tool_rl.py",
     "geo3k": "geo3k_rl.py",
+    "diplomacy": "diplomacy_rl.py",
 }
 
 

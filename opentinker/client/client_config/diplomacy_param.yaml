@@ -1,0 +1,76 @@
+# Diplomacy RL Training Configuration
+# Use with: python diplomacy_rl.py
+
+# Project settings
+project_name: opentinker
+experiment_name: diplomacy_training
+
+# Logging
+logger_backends: ["console", "wandb"]
+
+# Tracing (optional)
+enable_tracing: false
+weave_project: null
+
+# WandB (optional)
+wandb_key: null
+
+# Model and tokenizer
+model_path: "Qwen/Qwen2.5-7B-Instruct"
+tokenizer_path: "Qwen/Qwen2.5-7B-Instruct"
+
+# Training parameters
+batch_size: 2
+num_workers: 2
+num_epochs: null
+num_steps: 1000
+save_freq: 100
+test_freq: 20
+
+# Validation parameters
+val_batch_size: 10
+
+# Generation parameters
+temperature: 0.7
+top_p: 1
+# Diplomacy requires long multi-turn trajectories — generous token budget
+max_new_tokens: 8192
+max_prompt_tokens: 8192
+
+# Algorithm
+algorithm: "single_turn"
+
+# RL Algorithm settings
+adv_estimator: "grpo_per_step"
+rollout_n: 4
+
+# Interaction configuration
+interaction:
+  name: diplomacy
+  class_path: opentinker.environment.gym_environment_interaction.GymEnvironmentInteraction
+  config:
+    env_host: 0.0.0.0
+    env_port: 8093
+    env_endpoint: http://${interaction.config.env_host}:${interaction.config.env_port}
+    env_shards: 1
+    # Diplomacy-specific settings
+    power: FRANCE
+    max_phases: 30
+    max_turns_per_phase: 40
+    max_total_steps: 1200  # max environment step calls across all phases
+    opponent_model: "x-ai/grok-4-fast"
+    observation_template: "{observation}"
+
+multi_turn:
+  max_user_turns: ${interaction.config.max_total_steps}
+  max_assistant_turns: ${interaction.config.max_total_steps}
+  max_tokens_per_turn: 512
+  weave_project: null
+  experiment_name: "diplomacy_interaction"
+
+# Scheduler settings
+scheduler_url: "http://0.0.0.0:8780"
+scheduler_api_key: null
+
+# GPU settings
+num_gpus: 4

@@ -15,6 +15,7 @@ class TrainingTask(str, Enum):
     MATH = "math"
     MATH_TOOL = "math_tool"
     GEO3K = "geo3k"
+    DIPLOMACY = "diplomacy"
 
 
 class JobStatus(str, Enum):

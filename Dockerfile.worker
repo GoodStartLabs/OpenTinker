@@ -71,6 +71,11 @@ RUN PIP_CONSTRAINT="" pip install --no-cache-dir alfworld
 # Install wandb for experiment tracking
 RUN PIP_CONSTRAINT="" pip install --no-cache-dir wandb
 
+# Install Diplomacy game engine and opponent inference dependencies
+RUN PIP_CONSTRAINT="" pip install --no-cache-dir \
+    diplomacy \
+    "openai>=1.0.0"
+
 # Install Celery for task queue
 RUN PIP_CONSTRAINT="" pip install --no-cache-dir \
     "celery>=5.3.0" \
