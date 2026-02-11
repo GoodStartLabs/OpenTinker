@@ -5,7 +5,7 @@ resources:
   - worker.yaml
   - worker-serviceaccount.yaml
   - worker-keda-autoscaler.yaml
-  - secret-store.yaml
+  # SecretStore + ExternalSecret only in us-central1 overlay (ESO not installed on us-east4)
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker

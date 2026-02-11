@@ -5,6 +5,7 @@ namespace: opentinker-workers-us-central1
 
 resources:
   - ../../workers-base
+  - secret-store.yaml
   - namespace.yaml
   - keda-rabbitmq-secret.yaml
   - external-secret-wandb.yaml
@@ -44,7 +45,9 @@ patches:
       metadata:
         name: opentinker-worker-scaler
       spec:
+        minReplicaCount: 0
         maxReplicaCount: 4
+        idleReplicaCount: 0
         triggers:
         - type: rabbitmq
           metadata:

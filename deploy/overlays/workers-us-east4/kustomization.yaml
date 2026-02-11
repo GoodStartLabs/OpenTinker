@@ -7,7 +7,8 @@ resources:
   - ../../workers-base
   - namespace.yaml
   - keda-rabbitmq-secret.yaml
-  - external-secret-wandb.yaml
+  # No ExternalSecret/SecretStore: ESO not installed on us-east4. Create wandb-api-key via:
+  #   infra/argocd/opentinker/create-wandb-secret-from-gcp.sh us-east4
 
 images:
   - name: us-central1-docker.pkg.dev/development-472321/opentinker/worker
@@ -49,11 +50,18 @@ patches:
       kind: Deployment
       name: worker
 
-  # GCP Secret Store (cluster + namespace for us-east4)
-  - path: secret-store-patch.yaml
+  # Scale to zero when idle (no active replicas by default)
+  - patch: |-
+      apiVersion: keda.sh/v1alpha1
+      kind: ScaledObject
+      metadata:
+        name: opentinker-worker-scaler
+      spec:
+        minReplicaCount: 0
+        idleReplicaCount: 0
     target:
-      kind: SecretStore
-      name: gcp-secret-store
+      kind: ScaledObject
+      name: opentinker-worker-scaler
 
   # Update service account with Workload Identity
   - patch: |-
