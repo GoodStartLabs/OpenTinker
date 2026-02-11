@@ -33,9 +33,10 @@ val_batch_size: 10
 # Generation parameters
 temperature: 0.7
 top_p: 1
-# Diplomacy requires long multi-turn trajectories — generous token budget
-max_new_tokens: 8192
-max_prompt_tokens: 8192
+# Total sequence length = max_prompt_tokens + max_new_tokens, must fit verl's max_token_len
+# Multi-turn trajectory length comes from many step() calls, not one long response
+max_new_tokens: 4096
+max_prompt_tokens: 4096
 
 # Algorithm
 algorithm: "single_turn"

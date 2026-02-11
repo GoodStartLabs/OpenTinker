@@ -13,6 +13,7 @@ Usage:
 
 from omegaconf import OmegaConf
 import hydra
+from datetime import datetime
 
 from utils.http_training_client import ServiceClient, SchedulerClient
 from opentinker.environment.base_game_environment import GameEnvironment
@@ -66,6 +67,14 @@ def main(args):
 
     job_id = job_result["job_id"]
     server_url = job_result["server_url"]
+
+    # Update experiment name to include celery_task_id (if available) or scheduler job_id
+    if args.experiment_name == "diplomacy_training" or args.experiment_name.startswith("diplomacy_"):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Prefer celery_task_id (from API) over scheduler job_id
+        task_id = args.get("celery_task_id", job_id)
+        task_id_short = task_id[:8] if task_id else job_id[:8]
+        args.experiment_name = f"diplomacy_{timestamp}_{task_id_short}"
 
     lifecycle.register_job(scheduler_client, job_id)
 

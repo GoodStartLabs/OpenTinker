@@ -93,6 +93,9 @@ def run_training(self, training_request: dict):
         # Add num_gpus override
         hydra_overrides.append(f"num_gpus={num_gpus}")
 
+        # Add celery_task_id for experiment naming (+ prefix to append new key)
+        hydra_overrides.append(f"+celery_task_id={request_id}")
+
         # Add checkpoint path if provided
         if checkpoint_path:
             hydra_overrides.append(f"checkpoint_path={checkpoint_path}")
