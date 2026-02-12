@@ -46,7 +46,7 @@ patches:
         name: opentinker-worker-scaler
       spec:
         minReplicaCount: 0
-        maxReplicaCount: 4
+        maxReplicaCount: 0
         idleReplicaCount: 0
         triggers:
         - type: rabbitmq
