@@ -22,6 +22,7 @@ patches:
       metadata:
         name: worker
       spec:
+        replicas: 0
         template:
           spec:
             nodeSelector:
