@@ -16,12 +16,12 @@ weave_project: null
 wandb_key: null
 
 # Model and tokenizer
-model_path: "Qwen/Qwen2.5-7B-Instruct"
-tokenizer_path: "Qwen/Qwen2.5-7B-Instruct"
+model_path: "Qwen/Qwen2.5-1.5B-Instruct"
+tokenizer_path: "Qwen/Qwen2.5-1.5B-Instruct"
 
 # Training parameters
 batch_size: 2
-num_workers: 2
+num_workers: 4
 num_epochs: null
 num_steps: 1000
 save_freq: 100
@@ -35,8 +35,8 @@ temperature: 0.7
 top_p: 1
 # Total sequence length = max_prompt_tokens + max_new_tokens, must fit verl's max_token_len
 # Multi-turn trajectory length comes from many step() calls, not one long response
-max_new_tokens: 4096
-max_prompt_tokens: 4096
+max_new_tokens: 1024
+max_prompt_tokens: 3072
 
 # Algorithm
 algorithm: "single_turn"
@@ -58,8 +58,8 @@ interaction:
     power: FRANCE
     max_phases: 30
     max_turns_per_phase: 40
-    max_total_steps: 1200  # max environment step calls across all phases
-    opponent_model: "x-ai/grok-4-fast"
+    max_total_steps: 20  # max environment step calls across all phases
+    opponent_model: "arcee-ai/trinity-large-preview:free"
     observation_template: "{observation}"
 
 multi_turn:

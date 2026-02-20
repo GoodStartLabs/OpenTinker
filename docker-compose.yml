@@ -35,7 +35,7 @@ services:
         condition: service_healthy
 
   worker:
-    image: worker:tinker
+    image: worker:latest
     environment:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672//
       SCHEDULER_URL: http://host.docker.internal:8780  # Connect to scheduler on host
@@ -44,6 +44,7 @@ services:
       DIPLOMACY_OPPONENT_MODEL: ${DIPLOMACY_OPPONENT_MODEL:-x-ai/grok-4-fast}
     volumes:
       - ./logs:/logs
+      - ./opentinker:/workspace/OpenTinker/opentinker
     depends_on:
       rabbitmq:
         condition: service_healthy

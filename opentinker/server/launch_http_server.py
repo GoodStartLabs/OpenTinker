@@ -62,9 +62,9 @@ def main(cfg):
         cfg.actor_rollout_ref.actor.use_kl_loss = False  # False for PPO, True for GRPO
         cfg.algorithm.use_kl_in_reward = True  # True for PPO, False for GRPO
 
-        cfg.actor_rollout_ref.rollout.tensor_model_parallel_size = 2
+        cfg.actor_rollout_ref.rollout.tensor_model_parallel_size = 1
         cfg.actor_rollout_ref.rollout.name = "vllm"
-        cfg.actor_rollout_ref.rollout.gpu_memory_utilization = 0.6
+        cfg.actor_rollout_ref.rollout.gpu_memory_utilization = 0.65
         # Disable free_cache_engine for CUDA allocator (cumem sleep/wake not supported)
         cfg.actor_rollout_ref.rollout.free_cache_engine = False
 
@@ -121,7 +121,7 @@ def main(cfg):
         cfg.trainer.experiment_name = "qwen2.5-3b"
         # Use num_gpus from client config if provided, otherwise default to 8
         cfg.trainer.n_gpus_per_node = cfg.get("num_gpus", 8)
-        cfg.trainer.val_before_train = True
+        cfg.trainer.val_before_train = False
         cfg.trainer.nnodes = 1
         cfg.trainer.save_freq = 500
         cfg.trainer.test_freq = 500

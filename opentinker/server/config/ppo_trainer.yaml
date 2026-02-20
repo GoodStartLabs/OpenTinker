@@ -186,7 +186,7 @@ trainer:
   nnodes: 1
 
   # Number of GPUs per node
-  n_gpus_per_node: 8
+  n_gpus_per_node: 4
 
   # Save frequency (by iteration) for model checkpoints
   save_freq: -1
